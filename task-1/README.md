@@ -1,6 +1,6 @@
 # 🚀 Student CRUD REST API
 
-A production-style **Student Management REST API** built using **Flask**, following best practices like **RESTful design, Twelve-Factor App, testing, and clean architecture**.
+A production-style **Student Management REST API** built using **Flask**, following best practices like **RESTful design, Twelve-Factor App, testing, clean architecture, and containerization**.
 
 ---
 
@@ -15,6 +15,8 @@ A production-style **Student Management REST API** built using **Flask**, follow
 * ✅ Unit testing with pytest
 * ✅ Makefile automation
 * ✅ Simple UI for interaction
+* ✅ 🐳 Dockerized with multi-stage build
+* ✅ Runtime environment variable injection
 
 ---
 
@@ -29,6 +31,7 @@ A production-style **Student Management REST API** built using **Flask**, follow
 | Testing   | Pytest                            |
 | Config    | python-dotenv                     |
 | UI        | HTML + JavaScript                 |
+| Container | Docker                            |
 
 ---
 
@@ -38,29 +41,22 @@ A production-style **Student Management REST API** built using **Flask**, follow
 SRE-Bootcamp/
 │
 ├── app/
-│   ├── __init__.py
-│   ├── routes.py
-│   ├── models.py
-│   ├── db.py
-│
 ├── templates/
-│   └── index.html
-│
 ├── tests/
-│   └── test_routes.py
-│
 ├── migrations/
 ├── instance/
+├── Dockerfile
+├── .dockerignore
+├── Makefile
 ├── run.py
 ├── requirements.txt
-├── Makefile
 ├── README.md
 └── .env
 ```
 
 ---
 
-# ⚙️ Setup & Installation
+# ⚙️ Local Setup & Installation
 
 ## 1️⃣ Clone Repository
 
@@ -75,8 +71,7 @@ cd SRE-Bootcamp
 
 ```bash
 python -m venv venv
-source venv/bin/activate   # Linux/Mac
-venv\Scripts\activate      # Windows
+source venv/bin/activate
 ```
 
 ---
@@ -91,15 +86,13 @@ pip install -r requirements.txt
 
 ## 4️⃣ Configure Environment
 
-Create `.env` file:
-
-```
+```env
 DATABASE_URL=sqlite:///students.db
 ```
 
 ---
 
-## 5️⃣ Run Database Migration
+## 5️⃣ Run Migrations
 
 ```bash
 flask db upgrade
@@ -111,12 +104,6 @@ flask db upgrade
 
 ```bash
 make run
-```
-
-App will start at:
-
-```
-http://127.0.0.1:5000/
 ```
 
 ---
@@ -145,29 +132,13 @@ Base URL:
 GET /healthcheck
 ```
 
-Response:
-
-```json
-{
-  "status": "ok"
-}
-```
-
 ---
 
 # 🖥️ UI
 
-Access UI in browser:
-
 ```
 http://127.0.0.1:5000/
 ```
-
-Features:
-
-* Add student
-* View students
-* Delete student
 
 ---
 
@@ -177,36 +148,81 @@ Features:
 make test
 ```
 
-* Uses pytest
-* In-memory database for isolation
-
 ---
 
 # 🛠️ Makefile Commands
 
 ```
-make run       # Run app
-make test      # Run tests
-make migrate   # Create migration
-make upgrade   # Apply migration
+make run
+make test
+make migrate
+make upgrade
+make build        # Docker build
+make run-docker   # Run container
+make stop-docker  # Stop container
 ```
 
 ---
 
-# 🔐 Configuration
+# 🐳 Docker Setup (Multi-Stage Build)
 
-Uses environment variables (12-Factor App):
+## 🔨 Build Image (Semver Tagging)
+
+```bash
+docker build -t student-api:1.0.0 .
+```
+
+---
+
+## ▶️ Run Container (Inject Env at Runtime)
+
+```bash
+docker run -d \
+  -p 5000:5000 \
+  -e DATABASE_URL=sqlite:///students.db \
+  --name student-api \
+  student-api:1.0.0
+```
+
+---
+
+## 📦 Run Using .env File
+
+```bash
+docker run --env-file .env -p 5000:5000 student-api:1.0.0
+```
+
+---
+
+## ⛔ Stop Container
+
+```bash
+docker stop student-api && docker rm student-api
+```
+
+---
+
+# 🔐 Configuration (12-Factor App)
+
+Environment variables are injected at runtime:
 
 ```
 DATABASE_URL=sqlite:///students.db
 ```
 
+✔ No hardcoding
+✔ Same image works across environments
+
 ---
 
-# 📊 Logging
+# 📉 Docker Best Practices Implemented
 
-* Info logs → creation/update
-* Warning logs → deletion
+* Multi-stage Docker build
+* Slim base image (`python:3.12-slim`)
+* Dependency caching
+* `.dockerignore` for smaller image
+* Runtime configuration via env variables
+* No use of `latest` tag (uses semver)
 
 ---
 
@@ -219,41 +235,31 @@ DATABASE_URL=sqlite:///students.db
 * Environment-based configuration
 * Database migrations
 * Unit testing
-* Basic UI integration
+* Docker containerization
+* Runtime env injection
 
 ---
 
-# 🚀 Future Improvements
-
-* Docker & Docker Compose
-* PostgreSQL integration
-* Authentication (JWT)
-* Input validation
-* Rate limiting
-* Prometheus + Grafana monitoring
-* CI/CD (GitHub Actions)
-* React frontend
-
----
 
 # 🎯 Learning Outcomes
 
-* Backend development with Flask
-* Database handling using ORM
+* Backend + API development
+* Docker & containerization
+* Config management (12-factor)
 * Debugging real-world issues
-* Writing testable code
-* Applying DevOps practices
+* DevOps & SRE practices
 
 ---
 
 # 🏁 Conclusion
 
-This project demonstrates a **production-ready backend system** with clean architecture, testing, and DevOps practices. It is suitable for:
+This project demonstrates a **production-ready, containerized backend system** with:
 
-* Backend Engineering roles
-* Site Reliability Engineering (SRE)
-* DevOps positions
+* Clean architecture
+* Testing
+* DevOps readiness
+* Docker best practices
 
 ---
 
-⭐ If you found this useful, consider starring the repo!
+⭐ Star the repo if you found it useful!
