@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student CRUD</title>
+</head>
+<body>
+
+<h2>Student CRUD UI</h2>
+
+<input id="name" placeholder="Name">
+<input id="age" placeholder="Age">
+<input id="email" placeholder="Email">
+<button onclick="addStudent()">Add</button>
+
+<h3>Students</h3>
+<ul id="students"></ul>
+
+<script>
+const API = "http://127.0.0.1:5000/api/v1/students/";
+
+async function fetchStudents() {
+    const res = await fetch(API);
+    const data = await res.json();
+
+    const list = document.getElementById("students");
+    list.innerHTML = "";
+
+    data.forEach(s => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            ${s.name} (${s.age}) - ${s.email}
+            <button onclick="deleteStudent(${s.id})">Delete</button>
+        `;
+        list.appendChild(li);
+    });
+}
+
+async function addStudent() {
+    await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name: document.getElementById("name").value,
+            age: parseInt(document.getElementById("age").value),
+            email: document.getElementById("email").value
+        })
+    });
+
+    fetchStudents();
+}
+
+async function deleteStudent(id) {
+    await fetch(API + id, { method: "DELETE" });
+    fetchStudents();
+}
+
+fetchStudents();
+</script>
+
+</body>
+</html>
